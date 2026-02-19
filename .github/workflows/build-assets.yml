@@ -1,0 +1,40 @@
+name: Build Assets on Tag
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Commit and push changes to tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          # Force add dist because it's in .gitignore
+          git add -f dist/
+          # Only commit and push if there are changes
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Build assets for ${{ github.ref_name }}" && git push origin HEAD:refs/tags/${{ github.ref_name }} --force)

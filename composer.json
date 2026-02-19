@@ -1,0 +1,62 @@
+{
+    "name": "taoshan98/laravel-api-watcher",
+    "description": "A modern Laravel package to intercept, analyze, and visualize API requests.",
+    "version": "1.0.0",
+    "keywords": [
+        "laravel",
+        "api",
+        "watcher",
+        "monitor",
+        "dashboard",
+        "requests",
+        "debugging"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Taoshan98",
+            "email": "taoshan98@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/http": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "phpstan/phpstan": "^1.10",
+        "laravel/pint": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Taoshan98\\LaravelApiWatcher\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Taoshan98\\LaravelApiWatcher\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Taoshan98\\LaravelApiWatcher\\ApiWatcherServiceProvider"
+            ],
+            "aliases": {
+                "ApiWatcher": "Taoshan98\\LaravelApiWatcher\\Facades\\ApiWatcher"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

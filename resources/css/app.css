@@ -1,0 +1,330 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════
+   API Watcher — OLED Dark Design System
+   ═══════════════════════════════════════════════ */
+
+@theme {
+  /* ── Surface palette (near-black OLED) ── */
+  --color-surface-base: #000000;
+  --color-surface-raised: #0a0a0a;
+  --color-surface-overlay: #111111;
+  --color-surface-elevated: #161616;
+  --color-surface-spotlight: #1a1a1a;
+  --color-surface-hover: #1e1e1e;
+  --color-surface-active: #242424;
+
+  /* ── Border / divider ── */
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-default: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* ── Typography ── */
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #8a8a8a;
+  --color-text-muted: #555555;
+  --color-text-inverted: #000000;
+
+  /* ── Accent (cyan / teal) ── */
+  --color-accent: #00e5ff;
+  --color-accent-soft: rgba(0, 229, 255, 0.12);
+  --color-accent-medium: rgba(0, 229, 255, 0.24);
+  --color-accent-hover: #00b8d4;
+  --color-accent-muted: #006680;
+
+  /* ── Semantic ── */
+  --color-success: #00e676;
+  --color-success-soft: rgba(0, 230, 118, 0.12);
+  --color-warning: #ffab00;
+  --color-warning-soft: rgba(255, 171, 0, 0.12);
+  --color-danger: #ff1744;
+  --color-danger-soft: rgba(255, 23, 68, 0.12);
+  --color-info: #2979ff;
+  --color-info-soft: rgba(41, 121, 255, 0.12);
+
+  /* ── Typography ── */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* ── Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+}
+
+/* ═══════════════════════════════════════════════
+   Base Layer
+   ═══════════════════════════════════════════════ */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    color-scheme: dark;
+    background: var(--color-surface-base);
+    color: var(--color-text-primary);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-surface-base);
+    overflow: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+
+  /* Remove autofill bg */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px var(--color-surface-elevated) inset;
+    -webkit-text-fill-color: var(--color-text-primary);
+    caret-color: var(--color-text-primary);
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Style native inputs */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="datetime-local"],
+  select,
+  textarea {
+    background-color: var(--color-surface-elevated);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent-soft);
+  }
+
+  /* Checkbox + Radio */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-accent);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   Utility Classes
+   ═══════════════════════════════════════════════ */
+
+@layer utilities {
+  /* Liquid-glass surfaces */
+  .glass-surface {
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .glass-surface-elevated {
+    background: var(--color-surface-overlay);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .glass-surface-blur {
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Interactive card hover */
+  .card-interactive {
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .card-interactive:hover {
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-border-default);
+  }
+
+  /* Glow effects */
+  .glow-accent {
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+  }
+  .glow-danger {
+    box-shadow: 0 0 12px rgba(255, 23, 68, 0.15);
+  }
+  .glow-success {
+    box-shadow: 0 0 12px rgba(0, 230, 118, 0.15);
+  }
+
+  /* Text utilities */
+  .text-gradient-accent {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Badge base */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    line-height: 1.5;
+  }
+
+  /* Skeleton loader */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-surface-elevated) 25%,
+      var(--color-surface-spotlight) 50%,
+      var(--color-surface-elevated) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+    border-radius: var(--radius-md);
+  }
+
+  /* Safe area (iOS) */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   Animations
+   ═══════════════════════════════════════════════ */
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ═══════════════════════════════════════════════
+   ApexCharts Dark Theme Overrides
+   ═══════════════════════════════════════════════ */
+
+.apexcharts-canvas {
+  background: transparent !important;
+}
+
+.apexcharts-tooltip {
+  background: var(--color-surface-elevated) !important;
+  border: 1px solid var(--color-border-default) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.apexcharts-tooltip-title {
+  background: var(--color-surface-overlay) !important;
+  border-bottom: 1px solid var(--color-border-subtle) !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.apexcharts-xaxistooltip,
+.apexcharts-yaxistooltip {
+  background: var(--color-surface-elevated) !important;
+  border: 1px solid var(--color-border-default) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.apexcharts-legend-text {
+  color: var(--color-text-secondary) !important;
+}
+
+.apexcharts-menu {
+  background: var(--color-surface-elevated) !important;
+  border: 1px solid var(--color-border-default) !important;
+}
+
+.apexcharts-menu-item:hover {
+  background: var(--color-surface-hover) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   Vue Transitions
+   ═══════════════════════════════════════════════ */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease;
+}
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.3s ease;
+}
+.slide-right-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+}
