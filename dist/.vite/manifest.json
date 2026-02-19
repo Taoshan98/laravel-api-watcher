@@ -1,0 +1,152 @@
+{
+  "_circle-check-big-NKd45fWs.js": {
+    "file": "assets/circle-check-big-NKd45fWs.js",
+    "name": "circle-check-big",
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "_clock-B6b_1CIK.js": {
+    "file": "assets/clock-B6b_1CIK.js",
+    "name": "clock",
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "_formatDistanceToNow-aDLjEcHe.js": {
+    "file": "assets/formatDistanceToNow-aDLjEcHe.js",
+    "name": "formatDistanceToNow"
+  },
+  "_loader-circle-wUaqyuXr.js": {
+    "file": "assets/loader-circle-wUaqyuXr.js",
+    "name": "loader-circle",
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "_triangle-alert-D0T3cMjp.js": {
+    "file": "assets/triangle-alert-D0T3cMjp.js",
+    "name": "triangle-alert",
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "_vendor-charts-B6IHGujI.js": {
+    "file": "assets/vendor-charts-B6IHGujI.js",
+    "name": "vendor-charts"
+  },
+  "_x-DHufnDb5.js": {
+    "file": "assets/x-DHufnDb5.js",
+    "name": "x",
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-DYKFonEC.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_vendor-charts-B6IHGujI.js"
+    ],
+    "dynamicImports": [
+      "resources/js/pages/Dashboard.vue",
+      "resources/js/pages/RequestsList.vue",
+      "resources/js/pages/RequestDetails.vue",
+      "resources/js/pages/Analytics.vue",
+      "resources/js/pages/Alerts.vue",
+      "resources/js/pages/ApiKeys.vue",
+      "resources/js/pages/Settings.vue"
+    ],
+    "css": [
+      "assets/app-Drl9DZ8P.css"
+    ]
+  },
+  "resources/js/pages/Alerts.vue": {
+    "file": "assets/Alerts-DYnJYFQ4.js",
+    "name": "Alerts",
+    "src": "resources/js/pages/Alerts.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-charts-B6IHGujI.js",
+      "resources/js/app.js",
+      "_triangle-alert-D0T3cMjp.js",
+      "_circle-check-big-NKd45fWs.js",
+      "_clock-B6b_1CIK.js",
+      "_loader-circle-wUaqyuXr.js"
+    ]
+  },
+  "resources/js/pages/Analytics.vue": {
+    "file": "assets/Analytics-DUSMG94m.js",
+    "name": "Analytics",
+    "src": "resources/js/pages/Analytics.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-charts-B6IHGujI.js",
+      "resources/js/app.js"
+    ]
+  },
+  "resources/js/pages/ApiKeys.vue": {
+    "file": "assets/ApiKeys-RcOcZZhI.js",
+    "name": "ApiKeys",
+    "src": "resources/js/pages/ApiKeys.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-charts-B6IHGujI.js",
+      "resources/js/app.js"
+    ]
+  },
+  "resources/js/pages/Dashboard.vue": {
+    "file": "assets/Dashboard-CJ8WbMxX.js",
+    "name": "Dashboard",
+    "src": "resources/js/pages/Dashboard.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_triangle-alert-D0T3cMjp.js",
+      "_clock-B6b_1CIK.js",
+      "_vendor-charts-B6IHGujI.js",
+      "_formatDistanceToNow-aDLjEcHe.js"
+    ]
+  },
+  "resources/js/pages/RequestDetails.vue": {
+    "file": "assets/RequestDetails-DFoekdsD.js",
+    "name": "RequestDetails",
+    "src": "resources/js/pages/RequestDetails.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_vendor-charts-B6IHGujI.js",
+      "_x-DHufnDb5.js",
+      "_loader-circle-wUaqyuXr.js",
+      "_clock-B6b_1CIK.js",
+      "_formatDistanceToNow-aDLjEcHe.js"
+    ]
+  },
+  "resources/js/pages/RequestsList.vue": {
+    "file": "assets/RequestsList-B1a9ly4J.js",
+    "name": "RequestsList",
+    "src": "resources/js/pages/RequestsList.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-charts-B6IHGujI.js",
+      "resources/js/app.js",
+      "_x-DHufnDb5.js",
+      "_formatDistanceToNow-aDLjEcHe.js"
+    ]
+  },
+  "resources/js/pages/Settings.vue": {
+    "file": "assets/Settings-BwGFTGW8.js",
+    "name": "Settings",
+    "src": "resources/js/pages/Settings.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-charts-B6IHGujI.js",
+      "resources/js/app.js",
+      "_triangle-alert-D0T3cMjp.js",
+      "_circle-check-big-NKd45fWs.js",
+      "_clock-B6b_1CIK.js"
+    ]
+  }
+}
