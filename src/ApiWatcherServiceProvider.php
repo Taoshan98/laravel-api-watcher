@@ -35,9 +35,11 @@ class ApiWatcherServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'api-watcher-migrations');
 
-            $this->publishes([
-                __DIR__.'/../dist' => public_path('vendor/api-watcher'),
-            ], 'api-watcher-assets');
+            if (file_exists(__DIR__.'/../dist')) {
+                $this->publishes([
+                    __DIR__.'/../dist' => public_path('vendor/api-watcher'),
+                ], 'api-watcher-assets');
+            }
 
             $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
