@@ -1,15 +1,15 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { LayoutDashboard, List, Activity, Bell, MoreHorizontal } from 'lucide-vue-next';
+import { LayoutDashboard, List, ExternalLink, Activity, Bell, MoreHorizontal } from 'lucide-vue-next';
 
 const route = useRoute();
 
 const tabs = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Requests', href: '/requests', icon: List },
+  { name: 'Outgoing', href: '/outgoing', icon: ExternalLink },
   { name: 'Analytics', href: '/analytics', icon: Activity },
   { name: 'Alerts', href: '/alerts', icon: Bell },
-  { name: 'More', href: '/settings', icon: MoreHorizontal },
 ];
 
 const isActive = (path) => {

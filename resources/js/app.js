@@ -7,6 +7,9 @@ import '../css/app.css';
 const routes = [
     { path: '/', component: () => import('./pages/Dashboard.vue'), name: 'dashboard' },
     { path: '/requests', component: () => import('./pages/RequestsList.vue'), name: 'requests.list' },
+    { path: '/outgoing', component: () => import('./pages/OutgoingRequests.vue'), name: 'outgoing' },
+    { path: '/diagnostics', component: () => import('./pages/Diagnostics.vue'), name: 'diagnostics' },
+    { path: '/schema-drifts', component: () => import('./pages/SchemaDrifts.vue'), name: 'schema-drifts' },
     { path: '/requests/:id', component: () => import('./pages/RequestDetails.vue'), name: 'requests.show' },
     { path: '/analytics', component: () => import('./pages/Analytics.vue'), name: 'analytics' },
     { path: '/alerts', component: () => import('./pages/Alerts.vue'), name: 'alerts' },

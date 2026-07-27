@@ -11,7 +11,10 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Radio
+  Radio,
+  ExternalLink,
+  ShieldAlert,
+  GitCompare
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -26,6 +29,9 @@ const { packageVersion, fetchConfig } = useRequests();
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Requests', href: '/requests', icon: List },
+  { name: 'Outgoing APIs', href: '/outgoing', icon: ExternalLink },
+  { name: 'Diagnostics', href: '/diagnostics', icon: ShieldAlert },
+  { name: 'Schema Drifts', href: '/schema-drifts', icon: GitCompare },
   { name: 'Analytics', href: '/analytics', icon: Activity },
   { name: 'Alerts', href: '/alerts', icon: Bell },
   { name: 'API Keys', href: '/keys', icon: Key },
