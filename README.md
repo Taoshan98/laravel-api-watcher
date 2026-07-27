@@ -1,4 +1,4 @@
-# Laravel API Watcher 🦅 (V2.1 - Full Observability Suite)
+# Laravel API Watcher 🦅 (V2.0.0 - Full Observability Suite)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/taoshan98/laravel-api-watcher.svg?style=flat-square)](https://packagist.org/packages/taoshan98/laravel-api-watcher)
 [![Total Downloads](https://img.shields.io/packagist/dt/taoshan98/laravel-api-watcher.svg?style=flat-square)](https://packagist.org/packages/taoshan98/laravel-api-watcher)
