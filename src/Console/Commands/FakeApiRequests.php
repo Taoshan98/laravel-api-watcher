@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Taoshan98\LaravelApiWatcher\Console\Commands;
 
 use Illuminate\Console\Command;
-use Taoshan98\LaravelApiWatcher\Models\ApiRequest;
 use Taoshan98\LaravelApiWatcher\Database\Factories\ApiRequestFactory;
 
 class FakeApiRequests extends Command

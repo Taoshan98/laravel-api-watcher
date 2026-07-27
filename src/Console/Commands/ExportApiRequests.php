@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Taoshan98\LaravelApiWatcher\Console\Commands;
 
 use Illuminate\Console\Command;
-use Taoshan98\LaravelApiWatcher\Contracts\ApiWatcherStorageDriver;
 use Taoshan98\LaravelApiWatcher\Models\ApiRequest;
 
 class ExportApiRequests extends Command
@@ -30,10 +29,11 @@ class ExportApiRequests extends Command
     public function handle(): int
     {
         $format = $this->option('format');
-        $path = $this->option('path') ?? storage_path("app/api-requests-export-".date('Y-m-d-His').".{$format}");
+        $path = $this->option('path') ?? storage_path('app/api-requests-export-'.date('Y-m-d-His').".{$format}");
 
-        if (!in_array($format, ['json', 'csv'])) {
+        if (! in_array($format, ['json', 'csv'])) {
             $this->error('Invalid format. Supported formats: json, csv');
+
             return Command::FAILURE;
         }
 
@@ -42,8 +42,23 @@ class ExportApiRequests extends Command
         $query = ApiRequest::query();
 
         if ($format === 'json') {
-            $data = $query->get();
-            file_put_contents($path, $data->toJson(JSON_PRETTY_PRINT));
+            $file = fopen($path, 'w');
+            fwrite($file, "[\n");
+            $first = true;
+
+            $query->chunk(500, function ($requests) use ($file, &$first) {
+                foreach ($requests as $request) {
+                    /** @var \Taoshan98\LaravelApiWatcher\Models\ApiRequest $request */
+                    if (! $first) {
+                        fwrite($file, ",\n");
+                    }
+                    fwrite($file, $request->toJson(JSON_PRETTY_PRINT));
+                    $first = false;
+                }
+            });
+
+            fwrite($file, "\n]");
+            fclose($file);
         } else {
             $file = fopen($path, 'w');
             $headers = ['id', 'method', 'url', 'status_code', 'ip_address', 'duration_ms', 'created_at'];
@@ -51,6 +66,7 @@ class ExportApiRequests extends Command
 
             $query->chunk(500, function ($requests) use ($file) {
                 foreach ($requests as $request) {
+                    /** @var \Taoshan98\LaravelApiWatcher\Models\ApiRequest $request */
                     fputcsv($file, [
                         $request->id,
                         $request->method,
@@ -58,7 +74,7 @@ class ExportApiRequests extends Command
                         $request->status_code,
                         $request->ip_address,
                         $request->duration_ms,
-                        $request->created_at,
+                        (string) $request->created_at,
                     ]);
                 }
             });
@@ -66,7 +82,7 @@ class ExportApiRequests extends Command
             fclose($file);
         }
 
-        $this->info("Export completed!");
+        $this->info('Export completed!');
 
         return Command::SUCCESS;
     }

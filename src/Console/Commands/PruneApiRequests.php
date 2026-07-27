@@ -29,11 +29,11 @@ class PruneApiRequests extends Command
     public function handle(ApiWatcherStorageDriver $storage): int
     {
         $days = (int) $this->option('days');
-        
+
         $this->info("Pruning requests older than {$days} days...");
-        
+
         $count = $storage->prune($days);
-        
+
         $this->info("Deleted {$count} requests.");
 
         return Command::SUCCESS;

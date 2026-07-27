@@ -16,7 +16,7 @@ class CreateApiKey extends Command
     public function handle(): int
     {
         $name = $this->argument('name');
-        
+
         $plainTextToken = ApiWatcherKey::createKey($name);
 
         $this->info("API Key created successfully for: {$name}");

@@ -10,23 +10,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProtectExternalApi
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ?string $scope = null): Response
     {
-        if (!config('api-watcher.api.enabled', false)) {
+        if (! config('api-watcher.api.enabled', false)) {
             return response()->json(['message' => 'API is disabled.'], 403);
         }
 
         $headerName = config('api-watcher.api.header', 'X-API-WATCHER-KEY');
         $requestKey = $request->header($headerName);
 
-        if (!$requestKey) {
+        if (! $requestKey) {
             return response()->json(['message' => 'Unauthorized.'], 401);
         }
 
         $token = \Taoshan98\LaravelApiWatcher\Models\ApiWatcherKey::findToken($requestKey);
 
-        if (!$token) {
+        if (! $token) {
             return response()->json(['message' => 'Invalid API Key.'], 401);
+        }
+
+        if ($scope && ! $token->hasScope($scope)) {
+            return response()->json(['message' => "Forbidden. Key requires '{$scope}' scope."], 403);
         }
 
         $token->update(['last_used_at' => now()]);

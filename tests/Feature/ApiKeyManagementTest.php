@@ -3,7 +3,7 @@
 namespace Taoshan98\LaravelApiWatcher\Tests\Feature;
 
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 use Taoshan98\LaravelApiWatcher\Models\ApiWatcherKey;
 use Taoshan98\LaravelApiWatcher\Tests\TestCase;
 
@@ -16,55 +16,55 @@ class ApiKeyManagementTest extends TestCase
         $this->artisan('migrate');
     }
 
-    /** @test */
+    #[Test]
     public function can_create_api_key_via_command()
     {
         $this->artisan('api-watcher:create-key', ['name' => 'Test Key'])
-             ->assertExitCode(0);
+            ->assertExitCode(0);
 
         $this->assertDatabaseHas('api_watcher_keys', ['name' => 'Test Key']);
     }
 
-    /** @test */
+    #[Test]
     public function can_authenticate_with_database_key()
     {
         Config::set('api-watcher.api.enabled', true);
 
         // Create a key manually to get the plain token
         $token = ApiWatcherKey::createKey('Test Client');
-        
+
         $response = $this->getJson('/api-watcher/api/v1/stats', [
-            'X-API-WATCHER-KEY' => $token
+            'X-API-WATCHER-KEY' => $token,
         ]);
 
         $response->assertStatus(200);
-        
+
         // Verify last_used_at updated
         $key = ApiWatcherKey::where('name', 'Test Client')->first();
         $this->assertNotNull($key->last_used_at);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_authenticate_with_invalid_database_key()
     {
         Config::set('api-watcher.api.enabled', true);
 
         $response = $this->getJson('/api-watcher/api/v1/stats', [
-            'X-API-WATCHER-KEY' => '1|invalidsecret'
+            'X-API-WATCHER-KEY' => '1|invalidsecret',
         ]);
 
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function console_command_outputs_token()
     {
         $this->artisan('api-watcher:create-key', ['name' => 'CLI Key'])
-             ->expectsOutputToContain('|') // Should contain the separator
-             ->assertExitCode(0);
+            ->expectsOutputToContain('|') // Should contain the separator
+            ->assertExitCode(0);
     }
 
-    /** @test */
+    #[Test]
     public function can_regenerate_api_key()
     {
         $token = ApiWatcherKey::createKey('Regen Key');
@@ -72,13 +72,13 @@ class ApiKeyManagementTest extends TestCase
         $originalHash = $originalKey->token;
 
         $newToken = $originalKey->regenerate();
-        
+
         $this->assertNotEquals($token, $newToken);
         $this->assertNotEquals($originalHash, $originalKey->fresh()->token);
-        
+
         // Old token should fail
         $this->assertNull(ApiWatcherKey::findToken($token));
-        
+
         // New token should work
         $this->assertNotNull(ApiWatcherKey::findToken($newToken));
     }

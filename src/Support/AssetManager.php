@@ -6,6 +6,9 @@ namespace Taoshan98\LaravelApiWatcher\Support;
 
 class AssetManager
 {
+    /**
+     * @var array<string, mixed>|null
+     */
     protected static ?array $manifest = null;
 
     public static function asset(string $path): string
@@ -16,7 +19,7 @@ class AssetManager
 
         if (static::$manifest === null) {
             $manifestPath = public_path('vendor/api-watcher/.vite/manifest.json');
-            
+
             if (file_exists($manifestPath)) {
                 static::$manifest = json_decode(file_get_contents($manifestPath), true);
             } else {
@@ -26,20 +29,20 @@ class AssetManager
 
         $manifestKey = 'resources/js/app.js'; // entry point
 
-        if (!isset(static::$manifest[$manifestKey])) {
-            return asset('vendor/api-watcher/' . $path);
+        if (! isset(static::$manifest[$manifestKey])) {
+            return asset('vendor/api-watcher/'.$path);
         }
 
         $asset = static::$manifest[$manifestKey];
 
         if ($path === 'resources/css/app.css' && isset($asset['css'][0])) {
-            return asset('vendor/api-watcher/' . $asset['css'][0]);
+            return asset('vendor/api-watcher/'.$asset['css'][0]);
         }
 
         if ($path === 'resources/js/app.js') {
-            return asset('vendor/api-watcher/' . $asset['file']);
+            return asset('vendor/api-watcher/'.$asset['file']);
         }
 
-        return asset('vendor/api-watcher/' . $path);
+        return asset('vendor/api-watcher/'.$path);
     }
 }

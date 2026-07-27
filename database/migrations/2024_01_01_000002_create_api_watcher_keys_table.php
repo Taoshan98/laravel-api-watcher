@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('token', 64)->unique(); // Hashed token
+            $table->json('scopes')->nullable();
             $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
         });

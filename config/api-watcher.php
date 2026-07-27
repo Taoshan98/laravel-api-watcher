@@ -62,10 +62,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Sampling Settings
+    |--------------------------------------------------------------------------
+    |
+    | Control logging frequency for high-throughput APIs.
+    |
+    */
+    'sampling' => [
+        'enabled' => env('API_WATCHER_SAMPLING_ENABLED', false),
+        'rate' => (float) env('API_WATCHER_SAMPLING_RATE', 1.0), // 1.0 = 100%, 0.1 = 10%
+        'always_sample_errors' => env('API_WATCHER_ALWAYS_SAMPLE_ERRORS', true),
+        'always_sample_slow_ms' => (int) env('API_WATCHER_ALWAYS_SAMPLE_SLOW_MS', 500),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Storage Driver
     |--------------------------------------------------------------------------
     |
-    | Supported: "database", "redis", "file", "null"
+    | Supported: "database", "redis", "null"
     |
     */
     'storage' => [
@@ -73,6 +88,10 @@ return [
         'connection' => env('API_WATCHER_DB_CONNECTION', null),
         'table' => 'api_watcher_requests',
         'retention_days' => 30,
+        'redis' => [
+            'connection' => env('API_WATCHER_REDIS_CONNECTION', 'default'),
+            'key' => 'api_watcher:buffer',
+        ],
     ],
 
     /*
@@ -127,10 +146,10 @@ return [
     */
     'alerts' => [
         'enabled' => env('API_WATCHER_ALERTS_ENABLED', false),
-        
+
         // Look back X minutes to calculate metrics
-        'check_interval_minutes' => 5, 
-        
+        'check_interval_minutes' => 5,
+
         // Thresholds to trigger an alert
         'thresholds' => [
             'error_rate' => 5.0, // Percentage of 5xx errors

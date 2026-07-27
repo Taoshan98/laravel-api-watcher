@@ -6,9 +6,9 @@ namespace Taoshan98\LaravelApiWatcher\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Taoshan98\LaravelApiWatcher\Services\RequestCaptureService;
-use Illuminate\Support\Str;
 
 class CaptureApiRequest
 {
@@ -21,27 +21,37 @@ class CaptureApiRequest
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$this->shouldCapture($request)) {
+        if (! $this->shouldCapture($request)) {
             return $next($request);
         }
 
+        $requestId = (string) Str::uuid();
+        $request->attributes->set('api_watcher_request_id', $requestId);
+
         $startTime = microtime(true);
+        $queryCount = 0;
+        $queryTimeMs = 0.0;
+
+        \Illuminate\Support\Facades\DB::listen(function ($query) use (&$queryCount, &$queryTimeMs) {
+            $queryCount++;
+            $queryTimeMs += (float) $query->time;
+        });
 
         try {
             $response = $next($request);
         } catch (\Throwable $e) {
-            $this->captureService->capture($request, null, $startTime, $e); // Capture exception state
+            $this->captureService->capture($request, null, $startTime, $e, $queryCount, $queryTimeMs); // Capture exception state
             throw $e;
         }
 
-        $this->captureService->capture($request, $response, $startTime);
+        $this->captureService->capture($request, $response, $startTime, null, $queryCount, $queryTimeMs);
 
         return $response;
     }
 
     protected function shouldCapture(Request $request): bool
     {
-        if (!config('api-watcher.enabled', true)) {
+        if (! config('api-watcher.enabled', true)) {
             return false;
         }
 

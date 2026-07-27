@@ -9,7 +9,9 @@ use Illuminate\Support\Str;
 class SensitiveDataRedactor
 {
     protected array $keysToRedact;
+
     protected string $replacement;
+
     protected bool $hashRedacted;
 
     public function __construct()
@@ -24,8 +26,16 @@ class SensitiveDataRedactor
      */
     public function redactArray(array $data): array
     {
-        if (!config('api-watcher.redaction.enabled', true)) {
+        if (! config('api-watcher.redaction.enabled', true)) {
             return $data;
+        }
+
+        $customCallback = config('api-watcher.redaction.callback');
+        if (is_callable($customCallback)) {
+            $data = $customCallback($data);
+            if (! is_array($data)) {
+                return [];
+            }
         }
 
         foreach ($data as $key => $value) {
@@ -45,6 +55,35 @@ class SensitiveDataRedactor
         return $data;
     }
 
+    /**
+     * Redact sensitive data from a string (JSON or query string).
+     */
+    public function redactString(string $content): string
+    {
+        if (! config('api-watcher.redaction.enabled', true) || empty($content)) {
+            return $content;
+        }
+
+        if ($this->isJson($content)) {
+            $json = json_decode($content, true);
+            if (is_array($json)) {
+                return (string) json_encode($this->redactArray($json));
+            }
+        }
+
+        // Handle URL encoded form string
+        if (str_contains($content, '=')) {
+            parse_str($content, $parsed);
+            if (! empty($parsed) && is_array($parsed)) {
+                $redacted = $this->redactArray($parsed);
+
+                return http_build_query($redacted);
+            }
+        }
+
+        return $content;
+    }
+
     protected function shouldRedact(string $key): bool
     {
         $lowerKey = Str::lower($key);
@@ -53,23 +92,26 @@ class SensitiveDataRedactor
                 return true;
             }
         }
+
         return false;
     }
 
     protected function redactValue($value): string
     {
         if ($this->hashRedacted && is_string($value)) {
-            return $this->replacement . ' (SHA256: ' . hash('sha256', $value) . ')';
+            return $this->replacement.' (SHA256: '.hash('sha256', $value).')';
         }
+
         return $this->replacement;
     }
 
     protected function isJson($string): bool
     {
-        if (!is_string($string)) {
+        if (! is_string($string)) {
             return false;
         }
         json_decode($string);
-        return (json_last_error() === JSON_ERROR_NONE);
+
+        return json_last_error() === JSON_ERROR_NONE;
     }
 }

@@ -8,6 +8,7 @@ use Taoshan98\LaravelApiWatcher\Models\ApiWatcherKey;
 class ListApiKeys extends Command
 {
     protected $signature = 'api-watcher:list-keys';
+
     protected $description = 'List all API keys';
 
     public function handle()
@@ -16,6 +17,7 @@ class ListApiKeys extends Command
 
         if ($keys->isEmpty()) {
             $this->info('No API keys found.');
+
             return 0;
         }
 

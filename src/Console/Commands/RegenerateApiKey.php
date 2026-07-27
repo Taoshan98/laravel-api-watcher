@@ -8,6 +8,7 @@ use Taoshan98\LaravelApiWatcher\Models\ApiWatcherKey;
 class RegenerateApiKey extends Command
 {
     protected $signature = 'api-watcher:regenerate-key {id : The ID of the key} {--force : Force operation without confirmation}';
+
     protected $description = 'Regenerate an API key token';
 
     public function handle()
@@ -15,13 +16,15 @@ class RegenerateApiKey extends Command
         $id = $this->argument('id');
         $key = ApiWatcherKey::find($id);
 
-        if (!$key) {
+        if (! $key) {
             $this->error("Key with ID {$id} not found.");
+
             return 1;
         }
 
-        if (!$this->option('force') && !$this->confirm("Are you sure you want to regenerate the key for '{$key->name}'? The old key will stop working immediately.")) {
+        if (! $this->option('force') && ! $this->confirm("Are you sure you want to regenerate the key for '{$key->name}'? The old key will stop working immediately.")) {
             $this->info('Operation cancelled.');
+
             return 0;
         }
 

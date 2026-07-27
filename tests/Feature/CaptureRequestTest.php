@@ -1,20 +1,20 @@
 <?php
 
-use Taoshan98\LaravelApiWatcher\Models\ApiRequest;
 use Illuminate\Support\Facades\Route;
 use Taoshan98\LaravelApiWatcher\Http\Middleware\CaptureApiRequest;
+use Taoshan98\LaravelApiWatcher\Models\ApiRequest;
 
 // uses(Taoshan98\LaravelApiWatcher\Tests\TestCase::class);
 
 beforeEach(function () {
     config()->set('api-watcher.enabled', true);
     config()->set('api-watcher.capture.async', false); // Sync for testing
-    
+
     Route::middleware(CaptureApiRequest::class)->group(function () {
         Route::get('api/test', function () {
             return response()->json(['message' => 'success']);
         });
-        
+
         Route::post('api/test-post', function () {
             return response()->json(['message' => 'created'], 201);
         });
@@ -30,7 +30,7 @@ it('captures api requests', function () {
     // dump(Schema::hasTable('api_watcher_requests'));
 
     expect(ApiRequest::count())->toBe(1);
-    
+
     $request = ApiRequest::first();
     expect($request->method)->toBe('GET')
         ->and($request->url)->toContain('api/test')
@@ -42,7 +42,7 @@ it('captures request body', function () {
         ->assertCreated();
 
     expect(ApiRequest::count())->toBe(1);
-    
+
     $request = ApiRequest::first();
     expect($request->method)->toBe('POST')
         ->and($request->request_body)->toContain('test');
@@ -50,7 +50,7 @@ it('captures request body', function () {
 
 it('respects ignore patterns', function () {
     config()->set('api-watcher.capture.ignore', ['api/ignored']);
-    
+
     Route::middleware(CaptureApiRequest::class)->get('api/ignored', function () {
         return 'ignored';
     });

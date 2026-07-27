@@ -21,10 +21,10 @@ class PublicApiController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only([
-            'method', 'status_code', 'url', 'ip_address', 'user_id', 
-            'date_from', 'date_to', 'duration_min', 'duration_max'
+            'method', 'status_code', 'url', 'ip_address', 'user_id',
+            'date_from', 'date_to', 'duration_min', 'duration_max',
         ]);
-        
+
         $limit = (int) $request->input('limit', 50);
         $offset = (int) $request->input('offset', 0);
 
@@ -40,7 +40,7 @@ class PublicApiController extends Controller
             'meta' => [
                 'limit' => $limit,
                 'offset' => $offset,
-            ]
+            ],
         ]);
     }
 
@@ -48,7 +48,7 @@ class PublicApiController extends Controller
     {
         $request = $this->storage->find($id);
 
-        if (!$request) {
+        if (! $request) {
             return response()->json(['message' => 'Request not found'], 404);
         }
 
@@ -64,7 +64,7 @@ class PublicApiController extends Controller
                 'overview' => $this->storage->getStats(),
                 'requests_per_day' => $this->storage->getRequestsPerDay($days),
                 'error_rate_trend' => $this->storage->getErrorRateTrend($days),
-            ]
+            ],
         ]);
     }
 }

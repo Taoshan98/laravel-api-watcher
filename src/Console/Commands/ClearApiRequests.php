@@ -28,16 +28,17 @@ class ClearApiRequests extends Command
      */
     public function handle(ApiWatcherStorageDriver $storage): int
     {
-        if (!$this->option('force') && !$this->confirm('Are you sure you want to clear ALL API requests? This action cannot be undone.')) {
+        if (! $this->option('force') && ! $this->confirm('Are you sure you want to clear ALL API requests? This action cannot be undone.')) {
             $this->info('Operation cancelled.');
+
             return Command::SUCCESS;
         }
 
-        $this->info("Clearing all requests...");
-        
+        $this->info('Clearing all requests...');
+
         $storage->clear();
-        
-        $this->info("All requests cleared.");
+
+        $this->info('All requests cleared.');
 
         return Command::SUCCESS;
     }
