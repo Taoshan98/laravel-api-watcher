@@ -38,57 +38,115 @@ class DatabaseDriver implements ApiWatcherStorageDriver
     public function get(array $filters = [], int $limit = 50, int $offset = 0): mixed
     {
         $query = ApiRequest::query();
+        $this->applyFilters($query, $filters);
+
+        return $query->latest('created_at')
+            ->offset($offset)
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function count(array $filters = []): int
+    {
+        $query = ApiRequest::query();
+        $this->applyFilters($query, $filters);
+
+        return $query->count();
+    }
+
+    /**
+     * Apply all search and advanced filters to the query builder.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<\Taoshan98\LaravelApiWatcher\Models\ApiRequest>  $query
+     * @param  array<string, mixed>  $filters
+     */
+    protected function applyFilters($query, array $filters): void
+    {
+        // Global search across multiple columns
+        if (! empty($filters['search'])) {
+            $search = trim((string) $filters['search']);
+            $query->where(function ($q) use ($search) {
+                $q->where('url', 'like', "%{$search}%")
+                    ->orWhere('method', 'like', "%{$search}%")
+                    ->orWhere('ip_address', 'like', "%{$search}%")
+                    ->orWhere('route_name', 'like', "%{$search}%")
+                    ->orWhere('controller_action', 'like', "%{$search}%")
+                    ->orWhere('user_id', 'like', "%{$search}%")
+                    ->orWhere('request_body', 'like', "%{$search}%")
+                    ->orWhere('response_body', 'like', "%{$search}%");
+
+                if (is_numeric($search)) {
+                    $q->orWhere('status_code', (int) $search);
+                }
+            });
+        }
 
         if (! empty($filters['method'])) {
-            $query->whereIn('method', (array) $filters['method']);
+            $methods = array_filter(array_map('strtoupper', (array) $filters['method']));
+            if (! empty($methods)) {
+                $query->whereIn('method', $methods);
+            }
         }
 
         if (! empty($filters['status_code'])) {
             $statusCodes = (array) $filters['status_code'];
             $query->where(function ($q) use ($statusCodes) {
                 foreach ($statusCodes as $code) {
-                    if (str_ends_with((string) $code, 'xx')) {
-                        $prefix = substr((string) $code, 0, 1);
-                        $q->orWhereBetween('status_code', [$prefix.'00', $prefix.'99']);
-                    } else {
-                        $q->orWhere('status_code', $code);
+                    $codeStr = trim((string) $code);
+                    if (str_ends_with($codeStr, 'xx')) {
+                        $prefix = (int) substr($codeStr, 0, 1);
+                        $q->orWhereBetween('status_code', [$prefix * 100, $prefix * 100 + 99]);
+                    } elseif (is_numeric($codeStr)) {
+                        $q->orWhere('status_code', (int) $codeStr);
                     }
                 }
             });
         }
 
         if (! empty($filters['url'])) {
-            $query->where('url', 'like', '%'.$filters['url'].'%');
+            $query->where('url', 'like', '%'.trim((string) $filters['url']).'%');
         }
 
         if (! empty($filters['ip_address'])) {
-            $query->where('ip_address', 'like', '%'.$filters['ip_address'].'%');
+            $query->where('ip_address', 'like', '%'.trim((string) $filters['ip_address']).'%');
         }
 
-        if (! empty($filters['user_id'])) {
-            $query->where('user_id', $filters['user_id']);
+        if (isset($filters['user_id']) && $filters['user_id'] !== '') {
+            $query->where('user_id', (string) $filters['user_id']);
         }
 
         if (! empty($filters['date_from'])) {
-            $query->where('created_at', '>=', $filters['date_from']);
+            try {
+                $dateFrom = \Carbon\Carbon::parse($filters['date_from']);
+                $query->where('created_at', '>=', $dateFrom->toDateTimeString());
+            } catch (\Throwable) {
+                $query->where('created_at', '>=', $filters['date_from']);
+            }
         }
 
         if (! empty($filters['date_to'])) {
-            $query->where('created_at', '<=', $filters['date_to']);
+            try {
+                $dateToStr = (string) $filters['date_to'];
+                $dateTo = \Carbon\Carbon::parse($dateToStr);
+                if (strlen($dateToStr) === 10) {
+                    $dateTo = $dateTo->endOfDay();
+                }
+                $query->where('created_at', '<=', $dateTo->toDateTimeString());
+            } catch (\Throwable) {
+                $query->where('created_at', '<=', $filters['date_to']);
+            }
         }
 
-        if (! empty($filters['duration_min'])) {
-            $query->where('duration_ms', '>=', $filters['duration_min']);
+        if (isset($filters['duration_min']) && $filters['duration_min'] !== '' && is_numeric($filters['duration_min'])) {
+            $query->where('duration_ms', '>=', (int) $filters['duration_min']);
         }
 
-        if (! empty($filters['duration_max'])) {
-            $query->where('duration_ms', '<=', $filters['duration_max']);
+        if (isset($filters['duration_max']) && $filters['duration_max'] !== '' && is_numeric($filters['duration_max'])) {
+            $query->where('duration_ms', '<=', (int) $filters['duration_max']);
         }
-
-        return $query->latest('created_at')
-            ->offset($offset)
-            ->limit($limit)
-            ->get();
     }
 
     public function find(string $id): mixed
@@ -98,7 +156,19 @@ class DatabaseDriver implements ApiWatcherStorageDriver
 
     public function prune(int $days): int
     {
-        return ApiRequest::where('created_at', '<', now()->subDays($days))->delete();
+        $cutoff = now()->subDays($days);
+        $total = 0;
+
+        do {
+            $deleted = ApiRequest::where('created_at', '<', $cutoff)->limit(1000)->delete();
+            $total += $deleted;
+        } while ($deleted > 0);
+
+        do {
+            $deletedOutgoing = \Taoshan98\LaravelApiWatcher\Models\ApiOutgoingRequest::where('created_at', '<', $cutoff)->limit(1000)->delete();
+        } while ($deletedOutgoing > 0);
+
+        return $total;
     }
 
     /**

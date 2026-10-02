@@ -21,24 +21,39 @@ class PublicApiController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only([
-            'method', 'status_code', 'url', 'ip_address', 'user_id',
+            'search', 'q', 'method', 'status_code', 'url', 'ip_address', 'user_id',
             'date_from', 'date_to', 'duration_min', 'duration_max',
         ]);
 
-        $limit = (int) $request->input('limit', 50);
-        $offset = (int) $request->input('offset', 0);
-
-        // Limit maximum records per request for safety
-        if ($limit > 100) {
-            $limit = 100;
+        if (empty($filters['search']) && ! empty($filters['q'])) {
+            $filters['search'] = $filters['q'];
         }
 
+        $limit = (int) ($request->input('per_page') ?? $request->input('limit') ?? 50);
+        if ($limit > 100) {
+            $limit = 100;
+        } elseif ($limit < 1) {
+            $limit = 50;
+        }
+
+        $page = (int) $request->input('page', 1);
+        if ($request->has('offset')) {
+            $offset = (int) $request->input('offset', 0);
+            $page = (int) floor($offset / $limit) + 1;
+        } else {
+            $offset = max(0, ($page - 1) * $limit);
+        }
+
+        $total = $this->storage->count($filters);
         $requests = $this->storage->get($filters, $limit, $offset);
 
         return response()->json([
             'data' => $requests,
             'meta' => [
+                'total' => $total,
+                'page' => $page,
                 'limit' => $limit,
+                'last_page' => (int) ceil($total / $limit),
                 'offset' => $offset,
             ],
         ]);

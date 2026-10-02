@@ -77,25 +77,4 @@ class DevToolsAndQueryMetricsTest extends TestCase
             ->assertJsonPath('id', $request->id)
             ->assertJsonStructure(['curl']);
     }
-
-    #[Test]
-    public function endpoint_generates_signed_shareable_link()
-    {
-        $request = ApiRequest::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
-            'method' => 'GET',
-            'url' => 'http://localhost/api/test',
-            'status_code' => 200,
-            'duration_ms' => 10,
-        ]);
-
-        $response = $this->postJson("/api-watcher/api/requests/{$request->id}/share");
-        $response->assertOk()
-            ->assertJsonStructure(['share_url', 'expires_at']);
-
-        $shareUrl = $response->json('share_url');
-
-        // Verify signed link can be accessed
-        $this->getJson($shareUrl)->assertOk()->assertJsonPath('id', $request->id);
-    }
 }

@@ -43,7 +43,7 @@ class CaptureOutgoingHttpRequest
 
             $parentRequestId = request()->attributes->get('api_watcher_request_id');
 
-            ApiOutgoingRequest::create([
+            $data = [
                 'id' => (string) Str::uuid(),
                 'parent_request_id' => $parentRequestId ? (string) $parentRequestId : null,
                 'domain' => $domain,
@@ -56,7 +56,9 @@ class CaptureOutgoingHttpRequest
                 'response_headers' => $this->redactor->redactArray($response->headers()),
                 'response_body' => Str::limit((string) $response->body(), 64000),
                 'created_at' => now(),
-            ]);
+            ];
+
+            ApiOutgoingRequest::create($data);
         } catch (Throwable $e) {
             // Fail silently to never break HTTP client calls
         }
@@ -75,7 +77,7 @@ class CaptureOutgoingHttpRequest
 
             $parentRequestId = request()->attributes->get('api_watcher_request_id');
 
-            ApiOutgoingRequest::create([
+            $data = [
                 'id' => (string) Str::uuid(),
                 'parent_request_id' => $parentRequestId ? (string) $parentRequestId : null,
                 'domain' => $domain,
@@ -87,7 +89,9 @@ class CaptureOutgoingHttpRequest
                 'request_body' => Str::limit($this->redactor->redactString((string) $request->body()), 64000),
                 'exception_info' => 'Connection Failed',
                 'created_at' => now(),
-            ]);
+            ];
+
+            ApiOutgoingRequest::create($data);
         } catch (Throwable $e) {
             // Fail silently
         }

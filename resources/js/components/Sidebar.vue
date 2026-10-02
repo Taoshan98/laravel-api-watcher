@@ -115,10 +115,18 @@ onMounted(() => {
     </nav>
 
     <!-- Footer -->
-    <div class="border-t border-border-subtle p-2.5 flex-shrink-0">
-      <!-- Version -->
-      <div v-show="!collapsed" class="px-3 py-1">
-        <span class="text-[15px] text-text-muted">{{ packageVersion }}</span>
+    <div class="border-t border-border-subtle p-3 flex-shrink-0">
+      <!-- Version & Status -->
+      <div v-show="!collapsed" class="flex items-center justify-between px-2 py-1 text-xs">
+        <span class="text-text-muted font-mono tracking-tight">{{ packageVersion }}</span>
+        <span class="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          Active
+        </span>
+      </div>
+      <!-- Collapsed indicator -->
+      <div v-show="collapsed" class="flex items-center justify-center py-1" :title="'Laravel API Watcher ' + packageVersion">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
       </div>
     </div>
   </aside>

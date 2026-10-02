@@ -82,6 +82,14 @@ class RedisDriver implements ApiWatcherStorageDriver
         return $this->fallback->get($filters, $limit, $offset);
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function count(array $filters = []): int
+    {
+        return $this->fallback->count($filters);
+    }
+
     public function find(string $id): mixed
     {
         return $this->fallback->find($id);

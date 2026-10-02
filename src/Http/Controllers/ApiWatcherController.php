@@ -21,15 +21,37 @@ class ApiWatcherController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only([
-            'method', 'status_code', 'url', 'ip_address', 'user_id',
+            'search', 'q', 'method', 'status_code', 'url', 'ip_address', 'user_id',
             'date_from', 'date_to', 'duration_min', 'duration_max',
         ]);
-        $limit = (int) $request->input('limit', 50);
-        $offset = (int) $request->input('offset', 0);
 
-        $requests = $this->storage->get($filters, $limit, $offset);
+        if (empty($filters['search']) && ! empty($filters['q'])) {
+            $filters['search'] = $filters['q'];
+        }
 
-        return response()->json($requests);
+        $perPage = (int) ($request->input('per_page') ?? $request->input('limit') ?? 50);
+        if ($perPage < 1) {
+            $perPage = 50;
+        }
+
+        $page = (int) $request->input('page', 1);
+        if ($request->has('offset')) {
+            $offset = (int) $request->input('offset', 0);
+            $page = (int) floor($offset / $perPage) + 1;
+        } else {
+            $offset = max(0, ($page - 1) * $perPage);
+        }
+
+        $total = $this->storage->count($filters);
+        $requests = $this->storage->get($filters, $perPage, $offset);
+
+        return response()->json([
+            'data' => $requests,
+            'total' => $total,
+            'page' => $page,
+            'per_page' => $perPage,
+            'last_page' => (int) ceil($total / $perPage),
+        ]);
     }
 
     public function show(string $id): JsonResponse
@@ -99,42 +121,6 @@ class ApiWatcherController extends Controller
                 'message' => 'Failed to replay request: '.$e->getMessage(),
             ], 500);
         }
-    }
-
-    public function share(string $id): JsonResponse
-    {
-        $apiRequest = $this->storage->find($id);
-
-        if (! $apiRequest) {
-            return response()->json(['message' => 'Request not found'], 404);
-        }
-
-        $shareUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
-            'api-watcher.shared',
-            now()->addHours(24),
-            ['id' => $id]
-        );
-
-        return response()->json([
-            'id' => $id,
-            'share_url' => $shareUrl,
-            'expires_at' => now()->addHours(24)->toIso8601String(),
-        ]);
-    }
-
-    public function showShared(Request $request, string $id): JsonResponse
-    {
-        if (! $request->hasValidSignature()) {
-            return response()->json(['message' => 'Invalid or expired share link.'], 403);
-        }
-
-        $apiRequest = $this->storage->find($id);
-
-        if (! $apiRequest) {
-            return response()->json(['message' => 'Request not found'], 404);
-        }
-
-        return response()->json($apiRequest);
     }
 
     public function diff(Request $request): JsonResponse
@@ -214,12 +200,7 @@ class ApiWatcherController extends Controller
 
     public function config(): JsonResponse
     {
-        $version = 'unknown';
-        $composerPath = __DIR__.'/../../../composer.json';
-        if (file_exists($composerPath)) {
-            $composer = json_decode(file_get_contents($composerPath), true);
-            $version = $composer['version'] ?? 'unknown';
-        }
+        $version = \Taoshan98\LaravelApiWatcher\ApiWatcher::version();
 
         return response()->json([
             'version' => $version,

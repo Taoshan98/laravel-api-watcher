@@ -104,7 +104,10 @@ return [
     */
     'redaction' => [
         'enabled' => true,
-        'fields' => ['password', 'token', 'secret', 'authorization', 'api_key', 'credit_card', 'cvv', 'password_confirmation'],
+        'fields' => [
+            'password', 'token', 'secret', 'authorization', 'api_key', 'credit_card', 'cvv', 'password_confirmation',
+            'cookie', 'set-cookie', 'x-xsrf-token', 'x-csrf-token', 'php-auth-pw',
+        ],
         'patterns' => [],
         'hash_redacted' => false,
         'replacement' => '[REDACTED]',

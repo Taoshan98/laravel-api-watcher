@@ -28,6 +28,13 @@ interface ApiWatcherStorageDriver
     public function get(array $filters = [], int $limit = 50, int $offset = 0): mixed;
 
     /**
+     * Count requests based on filters.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function count(array $filters = []): int;
+
+    /**
      * Find a specific request by ID.
      */
     public function find(string $id): mixed;

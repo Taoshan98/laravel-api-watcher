@@ -130,6 +130,11 @@ class RequestCaptureService
             return null;
         }
 
+        if ($response instanceof \Symfony\Component\HttpFoundation\BinaryFileResponse ||
+            $response instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
+            return '[STREAMED/BINARY FILE]';
+        }
+
         $content = $response->getContent();
 
         if ($content === false) {
@@ -156,10 +161,19 @@ class RequestCaptureService
     protected function formatException(Throwable $e): string
     {
         return json_encode([
+            'class' => get_class($e),
             'message' => $e->getMessage(),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'trace' => collect($e->getTrace())->take(5)->toArray(), // Limit trace
+            'trace' => collect($e->getTrace())->take(15)->map(function ($frame) {
+                return [
+                    'file' => $frame['file'] ?? null,
+                    'line' => $frame['line'] ?? null,
+                    'function' => $frame['function'],
+                    'class' => $frame['class'] ?? null,
+                    'type' => $frame['type'] ?? null,
+                ];
+            })->values()->toArray(),
         ]);
     }
 }

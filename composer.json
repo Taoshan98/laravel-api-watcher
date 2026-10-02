@@ -1,5 +1,6 @@
 {
     "name": "taoshan98/laravel-api-watcher",
+    "version": "2.1.0",
     "description": "A modern Laravel package to intercept, analyze, and visualize API requests.",
     "keywords": [
         "laravel",

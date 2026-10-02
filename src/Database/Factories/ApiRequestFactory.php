@@ -21,11 +21,56 @@ class ApiRequestFactory extends Factory
             default => $this->faker->numberBetween(10, 500),
         };
 
+        $exceptionClass = $this->faker->randomElement([
+            'Illuminate\Database\QueryException',
+            'Symfony\Component\HttpKernel\Exception\HttpException',
+            'RuntimeException',
+            'InvalidArgumentException',
+            'App\Exceptions\PaymentProcessingException',
+        ]);
+
         $exceptionInfo = $statusCode >= 500 ? json_encode([
+            'class' => $exceptionClass,
             'message' => 'Server Error: '.$this->faker->sentence,
             'file' => '/var/www/html/app/Http/Controllers/ApiController.php',
             'line' => $this->faker->numberBetween(10, 100),
-            'trace' => [],
+            'trace' => [
+                [
+                    'file' => '/var/www/html/app/Http/Controllers/ApiController.php',
+                    'line' => 86,
+                    'function' => 'index',
+                    'class' => 'App\Http\Controllers\ApiController',
+                    'type' => '->',
+                ],
+                [
+                    'file' => '/var/www/html/vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php',
+                    'line' => 48,
+                    'function' => 'dispatch',
+                    'class' => 'Illuminate\Routing\ControllerDispatcher',
+                    'type' => '->',
+                ],
+                [
+                    'file' => '/var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Route.php',
+                    'line' => 260,
+                    'function' => 'run',
+                    'class' => 'Illuminate\Routing\Route',
+                    'type' => '->',
+                ],
+                [
+                    'file' => '/var/www/html/vendor/laravel/framework/src/Illuminate/Routing/Router.php',
+                    'line' => 790,
+                    'function' => 'runRouteWithinStack',
+                    'class' => 'Illuminate\Routing\Router',
+                    'type' => '->',
+                ],
+                [
+                    'file' => '/var/www/html/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php',
+                    'line' => 144,
+                    'function' => 'Illuminate\Pipeline\{closure}',
+                    'class' => 'Illuminate\Pipeline\Pipeline',
+                    'type' => '->',
+                ],
+            ],
         ]) : null;
 
         return [

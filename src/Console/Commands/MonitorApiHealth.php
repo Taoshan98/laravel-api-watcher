@@ -86,7 +86,7 @@ class MonitorApiHealth extends Command
             $webhookUrl = config('api-watcher.alerts.notifications.webhook.url');
             if ($webhookUrl) {
                 \Illuminate\Support\Facades\Http::post($webhookUrl, [
-                    'text' => "⚠️ *API Watcher Health Alert*\nError Rate: {$errorRate}%\nAvg Latency: {$avgLatency}ms",
+                    'text' => "[ALERT] *API Watcher Health Alert*\nError Rate: {$errorRate}%\nAvg Latency: {$avgLatency}ms",
                     'metrics' => $metrics,
                 ]);
             }

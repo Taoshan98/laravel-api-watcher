@@ -3,16 +3,18 @@ import { ref } from 'vue';
 export function useRequests() {
     const requests = ref([]);
     const request = ref(null);
-    const packageVersion = ref('...');
+    const packageVersion = ref('v2.1.0');
     const loading = ref(false);
     const error = ref(null);
     const pagination = ref({
-        offset: 0,
-        limit: 50,
-        total: 0
+        page: 1,
+        per_page: 50,
+        total: 0,
+        last_page: 1
     });
 
     const activeFilters = ref({
+        search: '',
         method: [],
         status_code: [],
         url: '',
@@ -49,11 +51,19 @@ export function useRequests() {
         }
     };
 
-    const fetchRequests = async (filters = null) => {
+    const fetchRequests = async (filters = null, page = null) => {
+        if (page !== null) {
+            pagination.value.page = page;
+        }
+
         if (filters) {
-            if (filters.limit) {
-                pagination.value.limit = filters.limit;
-                delete filters.limit;
+            if (filters.per_page) {
+                pagination.value.per_page = filters.per_page;
+                delete filters.per_page;
+            }
+            if (filters.page) {
+                pagination.value.page = filters.page;
+                delete filters.page;
             }
             activeFilters.value = { ...activeFilters.value, ...filters };
         }
@@ -62,18 +72,19 @@ export function useRequests() {
         error.value = null;
         try {
             const queryParams = new URLSearchParams({
-                limit: pagination.value.limit,
-                offset: pagination.value.offset
+                page: pagination.value.page,
+                per_page: pagination.value.per_page,
             });
 
             const f = activeFilters.value;
-            if (f.url) queryParams.append('url', f.url);
-            if (f.ip_address) queryParams.append('ip_address', f.ip_address);
-            if (f.user_id) queryParams.append('user_id', f.user_id);
+            if (f.search && f.search.trim()) queryParams.append('search', f.search.trim());
+            if (f.url && f.url.trim()) queryParams.append('url', f.url.trim());
+            if (f.ip_address && f.ip_address.trim()) queryParams.append('ip_address', f.ip_address.trim());
+            if (f.user_id !== undefined && f.user_id !== null && f.user_id !== '') queryParams.append('user_id', f.user_id);
             if (f.date_from) queryParams.append('date_from', f.date_from);
             if (f.date_to) queryParams.append('date_to', f.date_to);
-            if (f.duration_min) queryParams.append('duration_min', f.duration_min);
-            if (f.duration_max) queryParams.append('duration_max', f.duration_max);
+            if (f.duration_min !== '' && f.duration_min !== null && f.duration_min !== undefined) queryParams.append('duration_min', f.duration_min);
+            if (f.duration_max !== '' && f.duration_max !== null && f.duration_max !== undefined) queryParams.append('duration_max', f.duration_max);
 
             if (f.method && f.method.length) {
                 f.method.forEach(m => queryParams.append('method[]', m));
@@ -84,7 +95,6 @@ export function useRequests() {
 
             const query = queryParams.toString();
 
-            // In a real app, base URL should come from config or window object injected by Blade
             const response = await fetch(`/api-watcher/api/requests?${query}`, {
                 headers: {
                     'Accept': 'application/json',
@@ -94,9 +104,21 @@ export function useRequests() {
 
             if (!response.ok) throw new Error('Failed to fetch requests');
 
-            const data = await response.json();
-            requests.value = data;
-            // Assuming the API returns simple array for now, pagination handling needs total count from API
+            const result = await response.json();
+
+            if (Array.isArray(result)) {
+                requests.value = result;
+                pagination.value.total = result.length;
+                pagination.value.last_page = 1;
+            } else if (result && Array.isArray(result.data)) {
+                requests.value = result.data;
+                pagination.value.total = result.total ?? result.data.length;
+                pagination.value.page = result.page ?? pagination.value.page;
+                pagination.value.per_page = result.per_page ?? pagination.value.per_page;
+                pagination.value.last_page = result.last_page ?? 1;
+            } else {
+                requests.value = [];
+            }
         } catch (e) {
             error.value = e.message;
         } finally {
@@ -197,7 +219,9 @@ export function useRequests() {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             });
             const data = await response.json();
-            if (data.version) packageVersion.value = `v${data.version}`;
+            if (data.version && data.version !== 'unknown') {
+                packageVersion.value = data.version.startsWith('v') ? data.version : `v${data.version}`;
+            }
             return data;
         } catch (e) {
             console.error('Failed to fetch config', e);
@@ -247,6 +271,11 @@ export function useRequests() {
         }
     };
 
+    const changePage = (page) => {
+        if (page < 1 || (pagination.value.last_page && page > pagination.value.last_page)) return;
+        fetchRequests(null, page);
+    };
+
     return {
         requests,
         request,
@@ -257,6 +286,7 @@ export function useRequests() {
         stats,
         packageVersion,
         fetchRequests,
+        changePage,
         fetchRequest,
         fetchStats,
         fetchAnalytics,

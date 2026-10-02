@@ -32,6 +32,14 @@ class NullDriver implements ApiWatcherStorageDriver
         return [];
     }
 
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function count(array $filters = []): int
+    {
+        return 0;
+    }
+
     public function find(string $id): mixed
     {
         return null;

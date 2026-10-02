@@ -1,4 +1,4 @@
-# Laravel API Watcher 🦅 (V2.0.0 - Full Observability Suite)
+# Laravel API Watcher (V2.0.0 - Full Observability Suite)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/taoshan98/laravel-api-watcher.svg?style=flat-square)](https://packagist.org/packages/taoshan98/laravel-api-watcher)
 [![Total Downloads](https://img.shields.io/packagist/dt/taoshan98/laravel-api-watcher.svg?style=flat-square)](https://packagist.org/packages/taoshan98/laravel-api-watcher)
@@ -11,18 +11,18 @@
 
 ---
 
-## 🔬 System Architecture & Technical Features
+## System Architecture & Technical Features
 
-### 1. ⚡ Zero-Latency Ingress Logging
+### 1. Zero-Latency Ingress Logging
 * **Lifecycle Hook**: Capture logic executes strictly after HTTP responses are dispatched to clients via Laravel's `terminating` middleware callback (`dispatch()->afterResponse()`). The client never waits for DB logging operations.
 * **Fail-Safe Mechanism**: All capture routines operate inside isolated `try-catch` blocks. Logging or database failures are swallowed silently, ensuring 100% uptime for core application routes.
 
-### 2. 🌐 Egress Observability (Outgoing HTTP Interception)
+### 2. Egress Observability (Outgoing HTTP Interception)
 * **Automatic Event Interception**: Listens natively to `Illuminate\Http\Client\Events\ResponseReceived` and `Illuminate\Http\Client\Events\ConnectionFailed`.
 * **Parent-Child Request Correlation**: Automatically attaches a unique UUID (`api_watcher_request_id`) to the incoming request context, linking all outgoing HTTP calls triggered during that request execution.
 * **Dedicated Egress Dashboard**: View latencies, status codes, payload samples, and error rates per third-party domain (e.g. `api.stripe.com`, `api.openai.com`).
 
-### 3. 🎯 Intelligent Sampling Engine
+### 3. Intelligent Sampling Engine
 To optimize storage in high-volume production environments, the sampling algorithm evaluates every request against configured rules:
 ```php
 public function shouldSample(int $statusCode, float $durationMs): bool
@@ -40,7 +40,7 @@ public function shouldSample(int $statusCode, float $durationMs): bool
 }
 ```
 
-### 4. 🚀 High-Throughput Redis List Buffering
+### 4. High-Throughput Redis List Buffering
 For high-traffic APIs (thousands of req/sec), bypass direct SQL writes during request handling:
 ```
 Incoming Request -> Redis List Buffer (rpush) -> Background Worker (api-watcher:flush) -> Database Batch Insert
@@ -48,7 +48,7 @@ Incoming Request -> Redis List Buffer (rpush) -> Background Worker (api-watcher:
 * **Memory Efficient**: Buffers raw payload data into Redis lists using `rpush`.
 * **Artisan Worker**: `php artisan api-watcher:flush` pops buffered items via `lpop` and executes `DatabaseDriver::storeBatch()` using bulk `insert()`.
 
-### 5. 🛡️ Multilevel Data Redaction & Privacy (GDPR / PCI-DSS)
+### 5. Multilevel Data Redaction & Privacy (GDPR / PCI-DSS)
 * **Recursive Array & String Sanitization**: `SensitiveDataRedactor` recursively inspects arrays, JSON strings, and `application/x-www-form-urlencoded` query strings.
 * **Custom Callbacks**: Developers can register custom closures to redact application-specific sensitive fields:
 ```php
@@ -62,7 +62,7 @@ Incoming Request -> Redis List Buffer (rpush) -> Background Worker (api-watcher:
 ]
 ```
 
-### 6. 🧠 Diagnostic & Analytics Algorithmic Engine
+### 6. Diagnostic & Analytics Algorithmic Engine
 * **Visual Waterfall Execution Timeline**: Correlates DB query execution time (`DB::listen`) with outgoing HTTP calls.
 * **Side-by-Side Request Diffing**: `RequestDiff::compare($req1, $req2)` computes structural JSON deltas, duration deltas, and header variations between any two requests.
 * **Schema Drift Detector**: `SchemaDriftDetector` computes a structural type-mapping hash (`describeArraySchema`) for JSON responses across time to notify developers of breaking payload changes.
@@ -71,12 +71,12 @@ Incoming Request -> Redis List Buffer (rpush) -> Background Worker (api-watcher:
   Triggers a degradation warning when latency increases by $\ge 25\%$.
 * **Bot & Abuse Detector**: `AbuseDetector` analyzes IP address distributions over a 60-minute window, flagging IPs with high request volumes or error rates ($\ge 30\%$ 401/429/403 errors).
 
-### 7. 📦 Memory-Efficient Streaming Exporters
+### 7. Memory-Efficient Streaming Exporters
 * **Chunked Exporters**: Exporting logs via `php artisan api-watcher:export --format=json` uses `cursor()` / `chunk(500)` with direct file stream pointers (`fwrite`), maintaining flat RAM usage even on multi-million row tables.
 * **Postman Collection v2.1 Exporter**: `php artisan api-watcher:export-postman` builds a ready-to-import Postman Collection v2.1 JSON file.
 * **SLA & Uptime Report Generator**: `php artisan api-watcher:report` compiles SLA Uptime percentages, P95/P99 latency calculations, and status code distributions into a structured report.
 
-### 8. 🚨 Multichannel Proactive Alerting
+### 8. Multichannel Proactive Alerting
 Alerts trigger when error rates or average latencies breach configured thresholds. Supports:
 * **Mail Notifications** (Laravel Mail)
 * **Slack Webhooks**
@@ -84,7 +84,7 @@ Alerts trigger when error rates or average latencies breach configured threshold
 
 ---
 
-## 📸 Dashboard Preview
+## Dashboard Preview
 
 ### Request Inspector
 Deep dive into request details with payload formatting, headers, DB queries, and timeline execution.
@@ -96,7 +96,7 @@ Monitor third-party API call latencies, status codes, and error distributions.
 
 ---
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### 1. Require Package
 ```bash
@@ -151,7 +151,7 @@ Schedule::command('api-watcher:prune --days=30')->daily();
 
 ---
 
-## 🛠️ Artisan Command Reference
+## Artisan Command Reference
 
 | Command | Description | Options / Arguments |
 | :--- | :--- | :--- |
@@ -171,7 +171,7 @@ Schedule::command('api-watcher:prune --days=30')->daily();
 
 ---
 
-## 🔌 Public REST API
+## Public REST API
 
 Laravel API Watcher exposes a secure REST API protected by SHA-256 hashed keys and scope permissions.
 
@@ -200,7 +200,7 @@ X-API-WATCHER-KEY: your-plain-text-token
 
 ---
 
-## 🔒 Production Security Best Practices
+## Production Security Best Practices
 
 1. **Dashboard Gate Authorization**: Restrict dashboard access in production (`AppServiceProvider.php`):
    ```php
@@ -220,7 +220,7 @@ X-API-WATCHER-KEY: your-plain-text-token
 
 ---
 
-## 🧪 Automated Testing & Code Quality Standards
+## Automated Testing & Code Quality Standards
 
 ```bash
 # Run PHPStan Level 5 Static Analysis
@@ -235,12 +235,12 @@ X-API-WATCHER-KEY: your-plain-text-token
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request or open an Issue.
 
 ---
 
-## 📄 License
+## License
 
 Laravel API Watcher is open-sourced software licensed under the [MIT license](LICENSE.md).

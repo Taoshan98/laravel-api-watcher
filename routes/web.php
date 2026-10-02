@@ -34,7 +34,6 @@ Route::group([
         Route::get('/requests/{id}', [Taoshan98\LaravelApiWatcher\Http\Controllers\ApiWatcherController::class, 'show'])->name('requests.show');
         Route::get('/requests/{id}/curl', [Taoshan98\LaravelApiWatcher\Http\Controllers\ApiWatcherController::class, 'curl'])->name('requests.curl');
         Route::post('/requests/{id}/replay', [Taoshan98\LaravelApiWatcher\Http\Controllers\ApiWatcherController::class, 'replay'])->name('requests.replay');
-        Route::post('/requests/{id}/share', [Taoshan98\LaravelApiWatcher\Http\Controllers\ApiWatcherController::class, 'share'])->name('requests.share');
 
         // Outgoing HTTP Requests
         Route::get('/outgoing-requests', [Taoshan98\LaravelApiWatcher\Http\Controllers\OutgoingApiController::class, 'index'])->name('outgoing.index');
@@ -47,8 +46,6 @@ Route::group([
         Route::post('/keys/{id}/refresh', [Taoshan98\LaravelApiWatcher\Http\Controllers\ApiWatcherController::class, 'refreshKey'])->name('keys.refresh');
         Route::delete('/keys/{id}', [Taoshan98\LaravelApiWatcher\Http\Controllers\ApiWatcherController::class, 'destroyKey'])->name('keys.destroy');
     });
-
-    Route::get('/shared/{id}', [Taoshan98\LaravelApiWatcher\Http\Controllers\ApiWatcherController::class, 'showShared'])->name('shared');
 
     // Catch-all route for Vue SPA
     Route::get('/{view?}', function () {
